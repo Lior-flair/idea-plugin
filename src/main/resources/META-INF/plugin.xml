@@ -1,32 +1,58 @@
 <!-- Plugin Configuration File: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <!-- Unique identifier of the plugin. It should be FQN, cannot be changed between the plugin versions. -->
     <id>com.lior.plugin</id>
+    <name>MineSpace Developer Tools</name>
+    <vendor url="https://github.com/lior">lior</vendor>
 
-    <!-- Public plugin name should be written in Title Case.
-         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
-    <name>Plugin</name>
-
-    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor url="https://www.yourcompany.com">YourCompany</vendor>
-
-    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
-         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        Enter short description for your plugin here.<br>
-        <em>most HTML tags may be used</em>
+        <b>MineSpace Developer Tools</b> — 面向 WebStorm / IntelliJ IDEA 的开发效率插件。<br><br>
+        <b>Console Helper</b> — 快速日志辅助工具：<br>
+        <ul>
+            <li>光标处/选中变量一键插入日志语句</li>
+            <li>支持 console.log / console.debug / DEBUG_LOG / print 等多种函数</li>
+            <li>自定义前缀、文件名、行号标注</li>
+            <li>浏览器控制台 CSS 颜色样式与终端 ANSI 颜色</li>
+            <li>随机颜色模式，轻松区分不同日志</li>
+            <li>复杂对象自动 JSON.stringify，告别 [object Object]</li>
+            <li>一键清理当前文件中的所有日志语句</li>
+        </ul>
     ]]></description>
 
-    <!-- Product and plugin compatibility requirements.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
 
-    <depends>com.intellij.java</depends>
-    <depends>org.jetbrains.kotlin</depends>
-    <depends>org.jetbrains.plugins.yaml</depends>
-    <depends>com.intellij.modules.xml</depends>
-    <depends>com.intellij.properties</depends>
-    <!-- Extensions defined by the plugin.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
+        <applicationService
+            serviceImplementation="com.lior.plugin.consoleHelper.settings.ConsoleHelperSettings"/>
+
+        <applicationConfigurable
+            parentId="editor"
+            instance="com.lior.plugin.consoleHelper.settings.ConsoleHelperSettingsConfigurable"
+            id="com.lior.plugin.consoleHelper.settings.ConsoleHelperSettingsConfigurable"
+            displayName="Console Helper"/>
     </extensions>
+
+    <actions>
+        <group id="ConsoleHelper.ActionGroup"
+               text="Console Helper"
+               description="Console Helper 日志工具"
+               popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </group>
+
+        <action id="ConsoleHelper.InsertLog"
+                class="com.lior.plugin.consoleHelper.actions.InsertLogAction"
+                text="插入日志语句"
+                description="在光标处或选中变量下方插入日志语句">
+            <add-to-group group-id="ConsoleHelper.ActionGroup" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift L"/>
+        </action>
+
+        <action id="ConsoleHelper.ClearLogs"
+                class="com.lior.plugin.consoleHelper.actions.ClearLogsAction"
+                text="清理所有日志语句"
+                description="删除当前文件中所有匹配的日志语句">
+            <add-to-group group-id="ConsoleHelper.ActionGroup" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift D"/>
+        </action>
+    </actions>
 </idea-plugin>

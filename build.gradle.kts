@@ -14,18 +14,10 @@ repositories {
     }
 }
 
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
     intellijPlatform {
         intellijIdea("2025.2.4")
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
-
-        // Add plugin dependencies for compilation here:
-
-
-        bundledPlugin("com.intellij.java")
-        bundledPlugin("org.jetbrains.kotlin")
-        bundledPlugin("org.jetbrains.plugins.yaml")
     }
 }
 
@@ -36,13 +28,12 @@ intellijPlatform {
         }
 
         changeNotes = """
-            Initial version
+            v1.0: Console Helper — 快速日志插入与清理
         """.trimIndent()
     }
 }
 
 tasks {
-    // Set the JVM compatibility versions
     withType<JavaCompile> {
         sourceCompatibility = "21"
         targetCompatibility = "21"
