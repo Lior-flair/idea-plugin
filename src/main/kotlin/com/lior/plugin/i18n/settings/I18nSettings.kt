@@ -34,11 +34,21 @@ class I18nSettings : PersistentStateComponent<I18nSettings> {
     /** 是否启用内联翻译注释（行尾显示翻译内容） */
     var annotations: Boolean = true
 
+    /** 是否从项目 locale 目录中自动读取可用语言列表 */
+    var autoDetectLanguages: Boolean = false
+
     /**
      * 启用的框架，逗号分隔。
      * 默认 "auto" 表示自动检测；可指定：i18next,vue-i18n,react-intl,ngx-translate,flutter
      */
     var enabledFrameworks: String = "auto"
+
+    /**
+     * locale 文件名前缀（basename），逗号分隔，留空表示不过滤。
+     * 例如填写 "messages" 时，只扫描 messages.properties / messages_en.properties / messages_zh_CN.properties。
+     * 支持多个前缀，如 "messages,validation,errors"。
+     */
+    var localeFilePrefix: String = ""
 
     override fun getState(): I18nSettings = this
 
@@ -51,6 +61,9 @@ class I18nSettings : PersistentStateComponent<I18nSettings> {
 
     fun getEnabledFrameworkList(): List<String> =
         enabledFrameworks.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+
+    fun getLocaleFilePrefixList(): List<String> =
+        localeFilePrefix.split(",").map { it.trim() }.filter { it.isNotEmpty() }
 
     companion object {
         fun getInstance(): I18nSettings =
