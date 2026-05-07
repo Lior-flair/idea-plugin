@@ -1,6 +1,6 @@
 # MineSpace Developer Tools
 
-面向 **WebStorm / IntelliJ IDEA** 的开发效率插件，提供一键日志插入、样式定制和批量清理等功能。
+面向 **WebStorm / IntelliJ IDEA** 的开发效率插件，提供快速日志插入和 i18n 国际化辅助功能。
 
 ---
 
@@ -119,6 +119,114 @@ console.log(`\x1b[32m🚀 ~ api ~ L88 ~ res:\x1b[0m`, res)
 
 ---
 
+### i18n Helper — 国际化辅助工具
+
+在代码行尾自动展示当前行使用的 i18n key 所对应的翻译内容，无需跳转 locale 文件。
+
+#### 效果预览
+
+```ts
+// displayLanguage = "zh-CN" 时，行尾自动追加翻译注释：
+const title = t('home.title')            //  →  首页标题
+const btn   = t('common.save')           //  →  保存
+const msg   = i18n.t('error.notFound')   //  →  页面不存在
+```
+
+```html
+<!-- Angular ngx-translate -->
+<button>{{ 'common.submit' | translate }}</button>   <!--  →  提交  -->
+```
+
+#### 操作
+
+| 操作 | 快捷键 | 说明 |
+|---|---|---|
+| 刷新翻译缓存 | `Alt+Shift+R` | 重新加载所有 locale 文件（文件变动时自动刷新） |
+| 右键菜单 | 编辑器右键 → **i18n Helper** | 同上 |
+
+#### 配置项（Settings → Editor → i18n）
+
+| 配置项 | 默认值 | 说明 |
+|---|---|---|
+| `sourceLanguage` | `en` | 来源语言：locale 文件中用作翻译基准的语言代码 |
+| `displayLanguage` | `en` | 显示语言：行尾注释展示哪种语言的翻译 |
+| `localesPaths` | 见下 | locale 文件目录，逗号分隔，相对项目根目录 |
+| `keystyle` | `nested` | 键名风格：`nested`（嵌套对象）或 `flat`（展平点号键名） |
+| `annotations` | `true` | 是否启用行尾内联翻译注释 |
+| `enabledFrameworks` | `auto` | 支持的框架，`auto` 则自动检测 |
+
+**localesPaths 默认搜索路径：**
+```
+src/locales, locales, src/i18n, i18n, src/assets/i18n, public/locales
+```
+支持 Glob patterns，例如：`src/**/locales`
+
+#### locale 文件布局
+
+插件支持两种常见目录结构：
+
+```
+# 布局 1 — 文件命名为语言代码
+locales/
+  en.json
+  zh-CN.json
+
+# 布局 2 — 按语言分子目录
+locales/
+  en/
+    common.json
+    home.json
+  zh-CN/
+    common.json
+    home.json
+```
+
+#### 支持的框架
+
+| 框架 | 示例代码 |
+|---|---|
+| **i18next / react-i18next** | `t('key')` |
+| **vue-i18n** | `$t('key')` · `this.$t('key')` · `v-t="'key'"` · `$i18n.t('key')` |
+| **react-intl** | `intl.formatMessage({ id: 'key' })` · `<FormattedMessage id="key" />` |
+| **ngx-translate** | `'key' \| translate` · `translate.instant('key')` |
+| **Flutter easy_localization** | `tr('key')` |
+| **通用** | `translate('key')` · `i18n.t('key')` · `gettext('key')` |
+
+#### locale 文件格式
+
+**JSON（nested）：**
+```json
+{
+  "home": {
+    "title": "首页标题",
+    "subtitle": "欢迎使用"
+  },
+  "common": {
+    "save": "保存",
+    "cancel": "取消"
+  }
+}
+```
+
+**JSON（flat）：**
+```json
+{
+  "home.title": "首页标题",
+  "common.save": "保存"
+}
+```
+
+**YAML：**
+```yaml
+home:
+  title: 首页标题
+  subtitle: 欢迎使用
+common:
+  save: 保存
+```
+
+---
+
 ## 快速开始
 
 ### 开发环境
@@ -161,15 +269,27 @@ export JAVA_HOME=/path/to/jdk-21
 
 ```
 src/main/kotlin/com/lior/plugin/
-└── consoleHelper/
+├── consoleHelper/
+│   ├── actions/
+│   │   ├── InsertLogAction.kt           # Alt+Shift+L：插入日志
+│   │   └── ClearLogsAction.kt           # Alt+Shift+D：清理所有日志
+│   ├── generator/
+│   │   └── LogStatementGenerator.kt     # 多语言日志语句生成器
+│   └── settings/
+│       ├── ConsoleHelperSettings.kt
+│       └── ConsoleHelperSettingsConfigurable.kt
+└── i18n/
     ├── actions/
-    │   ├── InsertLogAction.kt          # Alt+Shift+L：插入日志
-    │   └── ClearLogsAction.kt          # Alt+Shift+D：清理所有日志
-    ├── generator/
-    │   └── LogStatementGenerator.kt    # 多语言日志语句生成器
+    │   └── RefreshTranslationsAction.kt  # Alt+Shift+R：刷新翻译缓存
+    ├── annotation/
+    │   └── I18nEditorLinePainter.kt      # 行尾翻译注释渲染
+    ├── pattern/
+    │   └── I18nPatternMatcher.kt         # 框架模式匹配（正则）
+    ├── service/
+    │   └── LocaleFileService.kt          # locale 文件读取与缓存（ProjectService）
     └── settings/
-        ├── ConsoleHelperSettings.kt             # 持久化设置服务
-        └── ConsoleHelperSettingsConfigurable.kt # 设置面板 UI
+        ├── I18nSettings.kt
+        └── I18nSettingsConfigurable.kt
 ```
 
 ---

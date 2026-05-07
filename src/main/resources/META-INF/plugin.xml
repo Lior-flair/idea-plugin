@@ -6,32 +6,60 @@
 
     <description><![CDATA[
         <b>MineSpace Developer Tools</b> — 面向 WebStorm / IntelliJ IDEA 的开发效率插件。<br><br>
-        <b>Console Helper</b> — 快速日志辅助工具：<br>
+
+        <b>Console Helper</b> — 快速日志工具：<br>
         <ul>
-            <li>光标处/选中变量一键插入日志语句</li>
+            <li>光标处/选中变量一键插入日志语句（Alt+Shift+L）</li>
             <li>支持 console.log / console.debug / DEBUG_LOG / print 等多种函数</li>
             <li>自定义前缀、文件名、行号标注</li>
-            <li>浏览器控制台 CSS 颜色样式与终端 ANSI 颜色</li>
-            <li>随机颜色模式，轻松区分不同日志</li>
-            <li>复杂对象自动 JSON.stringify，告别 [object Object]</li>
-            <li>一键清理当前文件中的所有日志语句</li>
+            <li>浏览器控制台 CSS 颜色样式与终端 ANSI 颜色、随机颜色</li>
+            <li>复杂对象自动 JSON.stringify</li>
+            <li>一键清理所有日志（Alt+Shift+D）</li>
+        </ul>
+
+        <b>i18n Helper</b> — 国际化辅助工具：<br>
+        <ul>
+            <li>自动读取项目 locale 文件（JSON / YAML）</li>
+            <li>在代码行尾内联显示翻译内容</li>
+            <li>支持 i18next / vue-i18n / react-intl / ngx-translate 等主流框架</li>
+            <li>支持 nested 与 flat 两种键名风格</li>
+            <li>Glob patterns 路径配置，自动检测多语言目录</li>
         </ul>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+
+        <!-- ── Console Helper ─────────────────────────────────────── -->
         <applicationService
             serviceImplementation="com.lior.plugin.consoleHelper.settings.ConsoleHelperSettings"/>
-
         <applicationConfigurable
             parentId="editor"
             instance="com.lior.plugin.consoleHelper.settings.ConsoleHelperSettingsConfigurable"
             id="com.lior.plugin.consoleHelper.settings.ConsoleHelperSettingsConfigurable"
             displayName="Console Helper"/>
+
+        <!-- ── i18n Helper ────────────────────────────────────────── -->
+        <applicationService
+            serviceImplementation="com.lior.plugin.i18n.settings.I18nSettings"/>
+        <projectService
+            serviceImplementation="com.lior.plugin.i18n.service.LocaleFileService"/>
+        <applicationConfigurable
+            parentId="editor"
+            instance="com.lior.plugin.i18n.settings.I18nSettingsConfigurable"
+            id="com.lior.plugin.i18n.settings.I18nSettingsConfigurable"
+            displayName="i18n"/>
+
+        <!-- 行尾翻译注释（适用于所有文件类型）-->
+        <editorLinePainter
+            implementation="com.lior.plugin.i18n.annotation.I18nEditorLinePainter"/>
+
+
     </extensions>
 
     <actions>
+        <!-- ── Console Helper ─────────────────────────────────────── -->
         <group id="ConsoleHelper.ActionGroup"
                text="Console Helper"
                description="Console Helper 日志工具"
@@ -53,6 +81,22 @@
                 description="删除当前文件中所有匹配的日志语句">
             <add-to-group group-id="ConsoleHelper.ActionGroup" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt shift D"/>
+        </action>
+
+        <!-- ── i18n Helper ────────────────────────────────────────── -->
+        <group id="I18n.ActionGroup"
+               text="i18n Helper"
+               description="i18n 国际化工具"
+               popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </group>
+
+        <action id="I18n.RefreshTranslations"
+                class="com.lior.plugin.i18n.actions.RefreshTranslationsAction"
+                text="刷新翻译缓存"
+                description="重新加载所有 locale 文件并刷新行尾翻译注释">
+            <add-to-group group-id="I18n.ActionGroup" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift R"/>
         </action>
     </actions>
 </idea-plugin>
