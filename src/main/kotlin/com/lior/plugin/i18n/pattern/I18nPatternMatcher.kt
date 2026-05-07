@@ -60,6 +60,10 @@ object I18nPatternMatcher {
         I18nPattern("generic", Regex("""(?:translate|gettext|_)\s*\(\s*['"]([^'"]+)['"]\s*[,)]"""), 1),
         // i18n.t('key') — generic i18n object
         I18nPattern("generic", Regex("""i18n\.t\(\s*['"]([^'"]+)['"]\s*[,)]"""), 1),
+        // getMessage("key") / getMessage('key') — Java/Kotlin 自定义消息方法（直接字符串参数）
+        I18nPattern("generic", Regex("""getMessage\s*\(\s*['"]([^'"]+)['"]"""), 1),
+        // key: "some.i18n.key" / key = "some.i18n.key" — Kotlin 命名参数 / Java 注解风格
+        I18nPattern("generic", Regex("""(?<!\w)key\s*[=:]\s*['"]([^'"]+)['"]"""), 1),
     )
 
     private val ALL_PATTERNS: Map<String, List<I18nPattern>> = mapOf(
