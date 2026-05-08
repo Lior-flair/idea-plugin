@@ -280,6 +280,7 @@ class LocaleFileService(private val project: Project) {
             "json"        -> parseJson(content)
             "yaml", "yml" -> parseYaml(content)
             "properties"  -> parseProperties(content)
+            "js", "ts"    -> parseJs(content)
             else          -> emptyMap()
         }
     }
@@ -351,6 +352,72 @@ class LocaleFileService(private val project: Project) {
         }
     }
 
+    // ── JS / TS ──────────────────────────────────────────────────────────────
+
+    /**
+     * 解析 JS/TS locale 文件。
+     * 支持常见写法：
+     *   export default { ... }
+     *   module.exports = { ... }
+     *   export const messages = { ... }
+     * 处理：无引号 key、单引号字符串、模板字符串、尾逗号、行注释、块注释。
+     */
+    private fun parseJs(content: String): Map<String, String> {
+        return try {
+            parseJson(normalizeJsToJson(content))
+        } catch (e: Exception) {
+            log.warn("i18n: JS/TS parse error: ${e.message}"); emptyMap()
+        }
+    }
+
+    private fun normalizeJsToJson(content: String): String {
+        var text = content
+
+        // 1. 去掉行注释和块注释（先块后行，避免块注释内有 // 干扰）
+        text = text.replace(Regex("""/\*[\s\S]*?\*/"""), "")
+        text = text.replace(Regex("""//[^\n\r]*"""), "")
+
+        // 2. 剥离模块导出包装，只保留对象字面量
+        text = text.replace(
+            Regex("""^\s*(?:export\s+default|module\.exports\s*=|export\s+const\s+\w[\w$]*\s*=)\s*"""),
+            ""
+        ).trim().trimEnd(';').trim()
+
+        // 3. 提取最外层 { }
+        val start = text.indexOf('{')
+        val end   = text.lastIndexOf('}')
+        if (start < 0 || end <= start) return "{}"
+        text = text.substring(start, end + 1)
+
+        // 4. 给未加引号的 key 加双引号（key: → "key":）
+        //    负向前瞻排除已是 "key": 或 'key': 的情况
+        text = Regex("""(?<=[{,\n\r]\s{0,200})([a-zA-Z_${'$'}][a-zA-Z0-9_${'$'}]*)(\s*):(?!\s*/)""")
+            .replace(text) { m -> "\"${m.groupValues[1]}\"${m.groupValues[2]}:" }
+
+        // 5. 单引号字符串 → 双引号（先转义内部 "，再还原 \'）
+        text = Regex("""'((?:[^'\\]|\\.)*)'""").replace(text) { m ->
+            val inner = m.groupValues[1]
+                .replace("\\\"", " DQ ")
+                .replace("\"", "\\\"")
+                .replace("\\'", "'")
+                .replace(" DQ ", "\\\"")
+            "\"$inner\""
+        }
+
+        // 6. 模板字符串 → 双引号（丢弃 ${} 插值，保留静态文本）
+        text = Regex("""`((?:[^`\\]|\\.)*)`""").replace(text) { m ->
+            val inner = m.groupValues[1]
+                .replace(Regex("""\$\{[^}]*\}"""), "")
+                .replace("\"", "\\\"")
+            "\"$inner\""
+        }
+
+        // 7. 去掉尾逗号
+        text = text.replace(Regex(""",(\s*[}\]])"""), "$1")
+
+        return text
+    }
+
     // ── 工具 ─────────────────────────────────────────────────────────────────
 
     private fun repaintAllEditors() {
@@ -361,7 +428,7 @@ class LocaleFileService(private val project: Project) {
     }
 
     companion object {
-        private val LOCALE_EXTENSIONS = setOf("json", "yaml", "yml", "properties")
+        private val LOCALE_EXTENSIONS = setOf("json", "yaml", "yml", "properties", "js", "ts")
 
         fun getInstance(project: Project): LocaleFileService =
             project.getService(LocaleFileService::class.java)
