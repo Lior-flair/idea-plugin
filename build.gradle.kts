@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.lior"
-version = "1.0-SNAPSHOT"
+version = "1.0-0"
 
 repositories {
     mavenCentral()
@@ -28,7 +28,28 @@ intellijPlatform {
         }
 
         changeNotes = """
-            v1.0: Console Helper — 快速日志插入与清理
+            <h3>v1.0.0</h3>
+            <h4>Console Helper — 快速日志工具</h4>
+            <ul>
+              <li>Alt+Shift+L：一键在光标所在行下方插入日志语句，自动提取变量名、文件名、行号</li>
+              <li>Alt+Shift+D：一键清除当前文件中所有匹配函数名的日志行</li>
+              <li>支持 JavaScript / TypeScript / Python / Java / Kotlin 多语言</li>
+              <li>支持 console.log / console.debug / console.warn / console.error / print 等多种日志函数</li>
+              <li>支持浏览器 %c CSS 彩色输出 与 终端 ANSI 彩色输出，可开启随机颜色</li>
+              <li>支持 JSON.stringify 包裹复杂对象，避免 [object Object]</li>
+              <li>参数数量（1/2/3）、引号类型、末尾分号均可配置</li>
+            </ul>
+            <h4>i18n Helper — 国际化内联注释</h4>
+            <ul>
+              <li>在代码行尾实时显示 i18n key 对应的翻译内容，无需跳转语言文件</li>
+              <li>Alt+Shift+R：手动刷新翻译缓存；语言文件变动时自动刷新</li>
+              <li>支持 i18next / vue-i18n / react-intl / ngx-translate / Flutter easy_localization 等主流框架</li>
+              <li>支持 JSON / YAML / Properties / JS / TS 格式的 locale 文件</li>
+              <li>支持按语言子目录（zh-CN/）与文件名（messages_zh_CN.properties）两种布局</li>
+              <li>支持 Glob 路径模式，如 src/**/i18n</li>
+              <li>支持文件名前缀过滤（localeFilePrefix），如只扫描 messages_*.properties</li>
+              <li>自动检测项目中的可用语言列表，支持 BCP 47 语言代码（zh-CN、en-US 等）</li>
+            </ul>
         """.trimIndent()
     }
 }
