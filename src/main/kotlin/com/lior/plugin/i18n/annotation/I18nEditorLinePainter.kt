@@ -1,6 +1,5 @@
 package com.lior.plugin.i18n.annotation
 
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorLinePainter
 import com.intellij.openapi.editor.LineExtensionInfo
 import com.intellij.openapi.editor.markup.TextAttributes
@@ -17,15 +16,6 @@ import java.awt.Font
 
 class I18nEditorLinePainter : EditorLinePainter() {
 
-    // ── IntelliJ 2024.1+ 新签名（平台优先调用此方法）────────────────────────
-    override fun getLineExtensions(
-        project: Project,
-        editor: Editor,
-        file: VirtualFile,
-        lineNumber: Int
-    ): Collection<LineExtensionInfo>? = computeExtensions(project, file, lineNumber)
-
-    // ── 旧签名保留兼容（新版平台默认实现会委托到此，双重保险）──────────────
     override fun getLineExtensions(
         project: Project,
         file: VirtualFile,
