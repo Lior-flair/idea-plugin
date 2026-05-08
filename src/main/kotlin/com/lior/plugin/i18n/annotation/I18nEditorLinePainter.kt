@@ -1,7 +1,9 @@
 package com.lior.plugin.i18n.annotation
 
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorLinePainter
 import com.intellij.openapi.editor.LineExtensionInfo
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -15,7 +17,24 @@ import java.awt.Font
 
 class I18nEditorLinePainter : EditorLinePainter() {
 
+    // ── IntelliJ 2024.1+ 新签名（平台优先调用此方法）────────────────────────
     override fun getLineExtensions(
+        project: Project,
+        editor: Editor,
+        file: VirtualFile,
+        lineNumber: Int
+    ): Collection<LineExtensionInfo>? = computeExtensions(project, file, lineNumber)
+
+    // ── 旧签名保留兼容（新版平台默认实现会委托到此，双重保险）──────────────
+    override fun getLineExtensions(
+        project: Project,
+        file: VirtualFile,
+        lineNumber: Int
+    ): Collection<LineExtensionInfo>? = computeExtensions(project, file, lineNumber)
+
+    // ── 核心逻辑 ─────────────────────────────────────────────────────────────
+
+    private fun computeExtensions(
         project: Project,
         file: VirtualFile,
         lineNumber: Int
@@ -23,7 +42,6 @@ class I18nEditorLinePainter : EditorLinePainter() {
         val settings = I18nSettings.getInstance()
         if (!settings.annotations) return null
 
-        // 用 VirtualFile 直接获取文档，避免依赖"当前选中"的编辑器
         val document = FileDocumentManager.getInstance().getDocument(file) ?: return null
         if (lineNumber >= document.lineCount) return null
 
@@ -35,10 +53,9 @@ class I18nEditorLinePainter : EditorLinePainter() {
         val matches  = I18nPatternMatcher.findKeysInLine(lineText)
         if (matches.isEmpty()) return null
 
-        val service = LocaleFileService.getInstance(project)
+        val service  = LocaleFileService.getInstance(project)
         val language = settings.displayLanguage
 
-        // 首次访问：触发后台加载，本次返回 null，加载完后自动刷新编辑器
         if (!service.isCached(language)) {
             service.loadInBackground(language)
             return null
@@ -49,7 +66,7 @@ class I18nEditorLinePainter : EditorLinePainter() {
             val translation = service.getTranslation(key) ?: continue
             result += LineExtensionInfo(
                 "  →  ${truncate(translation, MAX_LEN)}",
-                HINT_COLOR, null, null, Font.PLAIN
+                HINT_ATTRS
             )
         }
         return result.ifEmpty { null }
@@ -61,5 +78,9 @@ class I18nEditorLinePainter : EditorLinePainter() {
     companion object {
         private const val MAX_LEN = 60
         private val HINT_COLOR = JBColor(Color(140, 140, 140), Color(150, 150, 150))
+        private val HINT_ATTRS = TextAttributes().apply {
+            foregroundColor = HINT_COLOR
+            fontType        = Font.PLAIN
+        }
     }
 }

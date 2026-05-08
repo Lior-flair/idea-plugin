@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.lior"
-version = "1.1.0"
+version = "1.2.0"
 
 repositories {
     mavenCentral()
@@ -28,6 +28,12 @@ intellijPlatform {
         }
 
         changeNotes = """
+            <h3>v1.2.0</h3>
+            <h4>i18n Helper — 行尾内联修复 &amp; 鼠标悬浮翻译</h4>
+            <ul>
+              <li>修复 IntelliJ 2024.1+ 中行尾翻译始终不显示的问题（适配新版 EditorLinePainter 方法签名 &amp; TextAttributes API）</li>
+              <li>新增鼠标悬浮气泡：光标停留在 i18n key 上时，弹出气泡展示所有语言的翻译内容</li>
+            </ul>
             <h3>v1.1.0</h3>
             <h4>i18n Helper — 新增 Tool Window 面板</h4>
             <ul>
@@ -35,7 +41,6 @@ intellijPlatform {
               <li>Table View：Key 列 + 各语言值列，支持多语言并排对比，单击列头排序</li>
               <li>Tree View：按 key 层级展开，叶节点同步显示主语言翻译值</li>
               <li>搜索框实时过滤——同时匹配 key 名称与翻译内容，Table/Tree 联动更新</li>
-              <li>修复行尾内联翻译加载后未能即时刷新显示的问题</li>
             </ul>
             <h3>v1.0.0</h3>
             <h4>Console Helper — 快速日志工具</h4>

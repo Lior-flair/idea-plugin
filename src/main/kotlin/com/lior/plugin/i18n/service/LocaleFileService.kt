@@ -67,6 +67,12 @@ class LocaleFileService(private val project: Project) {
     fun getTranslationsForLanguage(language: String): Map<String, String> =
         cache.getOrPut(language) { loadLanguage(language) }
 
+    /** EDT 安全：仅读取缓存中已存在的语言列表，不触发 IO */
+    fun getCachedLanguages(): List<String> = cache.keys.toList().sorted()
+
+    /** EDT 安全：直接从缓存读取翻译，不触发 IO */
+    fun getCachedTranslation(language: String, key: String): String? = cache[language]?.get(key)
+
     // ── 语言自动检测 ──────────────────────────────────────────────────────────
 
     fun detectAvailableLanguages(): List<String> {

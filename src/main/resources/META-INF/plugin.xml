@@ -20,6 +20,7 @@
         <b>i18n Helper</b> — 国际化辅助工具：<br>
         <ul>
             <li>代码行尾内联显示 i18n key 对应翻译，语言文件变更自动刷新（Alt+Shift+R 手动刷新）</li>
+            <li>鼠标悬停在 i18n key 上弹出气泡，一次展示所有语言的翻译对照</li>
             <li>底部 i18n 面板：Table View / Tree View 双视图，展示项目全量翻译条目</li>
             <li>搜索框实时过滤，同时匹配 key 名称与翻译内容，Table / Tree 联动更新</li>
             <li>支持 i18next / vue-i18n / react-intl / ngx-translate / Flutter 等主流框架，自动检测</li>
@@ -56,6 +57,10 @@
         <!-- 行尾翻译注释（适用于所有文件类型）-->
         <editorLinePainter
             implementation="com.lior.plugin.i18n.annotation.I18nEditorLinePainter"/>
+
+        <!-- 鼠标悬浮气泡：光标停在 i18n key 上时展示所有语言的翻译 -->
+        <editorFactoryListener
+            implementation="com.lior.plugin.i18n.annotation.I18nEditorHoverHandler"/>
 
         <!-- i18n Tool Window（底部面板，Table / Tree 双视图）-->
         <toolWindow id="i18n"
