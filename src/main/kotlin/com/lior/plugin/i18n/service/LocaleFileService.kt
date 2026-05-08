@@ -3,7 +3,7 @@ package com.lior.plugin.i18n.service
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -422,7 +422,8 @@ class LocaleFileService(private val project: Project) {
 
     private fun repaintAllEditors() {
         ApplicationManager.getApplication().invokeLater {
-            FileEditorManager.getInstance(project).allEditors
+            EditorFactory.getInstance().allEditors
+                .filter { it.project == project }
                 .forEach { it.component.repaint() }
         }
     }

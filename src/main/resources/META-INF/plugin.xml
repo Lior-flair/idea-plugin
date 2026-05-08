@@ -55,6 +55,13 @@
         <editorLinePainter
             implementation="com.lior.plugin.i18n.annotation.I18nEditorLinePainter"/>
 
+        <!-- i18n Tool Window（底部面板，Table / Tree 双视图）-->
+        <toolWindow id="i18n"
+                    displayName="i18n"
+                    factoryClass="com.lior.plugin.i18n.toolwindow.I18nToolWindowFactory"
+                    anchor="bottom"
+                    canCloseContents="false"/>
+
 
     </extensions>
 
