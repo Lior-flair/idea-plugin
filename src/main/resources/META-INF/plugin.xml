@@ -19,11 +19,13 @@
 
         <b>i18n Helper</b> — 国际化辅助工具：<br>
         <ul>
-            <li>自动读取项目 locale 文件（JSON / YAML）</li>
-            <li>在代码行尾内联显示翻译内容</li>
-            <li>支持 i18next / vue-i18n / react-intl / ngx-translate 等主流框架</li>
-            <li>支持 nested 与 flat 两种键名风格</li>
-            <li>Glob patterns 路径配置，自动检测多语言目录</li>
+            <li>代码行尾内联显示 i18n key 对应翻译，语言文件变更自动刷新（Alt+Shift+R 手动刷新）</li>
+            <li>底部 i18n 面板：Table View / Tree View 双视图，展示项目全量翻译条目</li>
+            <li>搜索框实时过滤，同时匹配 key 名称与翻译内容，Table / Tree 联动更新</li>
+            <li>支持 i18next / vue-i18n / react-intl / ngx-translate / Flutter 等主流框架，自动检测</li>
+            <li>支持 JSON / YAML / Properties / JS / TS 格式的 locale 文件</li>
+            <li>支持语言子目录（zh-CN/）与文件名（messages_zh_CN.properties）两种布局</li>
+            <li>Glob patterns 路径配置，自动检测可用语言列表，支持 BCP 47 语言代码</li>
         </ul>
     ]]></description>
 

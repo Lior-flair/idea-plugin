@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.lior"
-version = "1.0-0"
+version = "1.1.0"
 
 repositories {
     mavenCentral()
@@ -28,6 +28,15 @@ intellijPlatform {
         }
 
         changeNotes = """
+            <h3>v1.1.0</h3>
+            <h4>i18n Helper — 新增 Tool Window 面板</h4>
+            <ul>
+              <li>新增底部 i18n 面板，以 Table View / Tree View 双视图展示项目全量翻译条目</li>
+              <li>Table View：Key 列 + 各语言值列，支持多语言并排对比，单击列头排序</li>
+              <li>Tree View：按 key 层级展开，叶节点同步显示主语言翻译值</li>
+              <li>搜索框实时过滤——同时匹配 key 名称与翻译内容，Table/Tree 联动更新</li>
+              <li>修复行尾内联翻译加载后未能即时刷新显示的问题</li>
+            </ul>
             <h3>v1.0.0</h3>
             <h4>Console Helper — 快速日志工具</h4>
             <ul>
