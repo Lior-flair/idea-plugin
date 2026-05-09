@@ -2,7 +2,7 @@ package com.lior.plugin.i18n.settings
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.options.BoundSearchableConfigurable
-import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.JBColor
@@ -11,7 +11,7 @@ import com.intellij.ui.dsl.builder.*
 import com.lior.plugin.i18n.service.LocaleFileService
 import javax.swing.DefaultComboBoxModel
 
-class I18nSettingsConfigurable : BoundSearchableConfigurable(
+class I18nSettingsConfigurable(private val project: Project) : BoundSearchableConfigurable(
     displayName = "i18n",
     helpTopic = "com.lior.plugin.i18n"
 ) {
@@ -21,32 +21,47 @@ class I18nSettingsConfigurable : BoundSearchableConfigurable(
     private lateinit var scanStatusLabel: JBLabel
 
     override fun createPanel(): DialogPanel {
-        val s = I18nSettings.getInstance()
+        val gs = I18nSettings.getInstance()
+        val ps = I18nProjectSettings.getInstance(project)
 
         sourceLangCombo = ComboBox<String>().apply {
             isEditable = true
-            addItem(s.sourceLanguage)
-            selectedItem = s.sourceLanguage
+            addItem(ps.sourceLanguage)
+            selectedItem = ps.sourceLanguage
         }
         displayLangCombo = ComboBox<String>().apply {
             isEditable = true
-            addItem(s.displayLanguage)
-            selectedItem = s.displayLanguage
+            addItem(ps.displayLanguage)
+            selectedItem = ps.displayLanguage
         }
         scanStatusLabel = JBLabel("").apply {
             foreground = JBColor.GRAY
             font = font.deriveFont(font.size2D - 1f)
         }
 
-        if (s.autoDetectLanguages) runScan()
+        if (ps.autoDetectLanguages) runScan()
 
         return panel {
 
-            // ── 语言设置 ─────────────────────────────────────────────────────
-            group("语言设置") {
+            // ── 全局显示选项 ──────────────────────────────────────────────────
+            group("显示选项 (全局)") {
+                row {
+                    checkBox("启用行尾 Inlay 翻译 (annotations)")
+                        .bindSelected({ gs.annotations }, { gs.annotations = it })
+                        .comment("在代码行尾以灰色文字实时显示 i18n key 对应的翻译内容")
+                }
+                row {
+                    checkBox("启用鼠标悬浮气泡 (hoverEnabled)")
+                        .bindSelected({ gs.hoverEnabled }, { gs.hoverEnabled = it })
+                        .comment("光标停留在 i18n key 上时，弹出气泡展示所有语言的翻译对照")
+                }
+            }
+
+            // ── 项目语言设置 ──────────────────────────────────────────────────
+            group("语言设置 (项目)") {
                 row {
                     checkBox("从项目中自动读取可用语言列表")
-                        .bindSelected({ s.autoDetectLanguages }, { s.autoDetectLanguages = it })
+                        .bindSelected({ ps.autoDetectLanguages }, { ps.autoDetectLanguages = it })
                         .onChanged { cb -> if (cb.isSelected) runScan() }
 
                     button("扫描语言") { runScan() }
@@ -65,11 +80,11 @@ class I18nSettingsConfigurable : BoundSearchableConfigurable(
                 }
             }
 
-            // ── 路径设置 ─────────────────────────────────────────────────────
-            group("路径设置 (localesPaths)") {
+            // ── 路径设置 ──────────────────────────────────────────────────────
+            group("路径设置 (localesPaths) (项目)") {
                 row {
                     textArea()
-                        .bindText({ s.localesPaths }, { s.localesPaths = it })
+                        .bindText({ ps.localesPaths }, { ps.localesPaths = it })
                         .rows(4)
                         .align(AlignX.FILL)
                 }.rowComment(
@@ -78,17 +93,17 @@ class I18nSettingsConfigurable : BoundSearchableConfigurable(
                 )
             }
 
-            // ── 文件格式 ─────────────────────────────────────────────────────
-            group("文件格式 (enabledExtensions)") {
-                val enabledSet = s.getEnabledExtensionSet().toMutableSet()
+            // ── 文件格式 ──────────────────────────────────────────────────────
+            group("文件格式 (enabledExtensions) (项目)") {
+                val enabledSet = ps.getEnabledExtensionSet().toMutableSet()
                 row {
-                    I18nSettings.ALL_EXTENSIONS.forEach { ext ->
+                    I18nProjectSettings.ALL_EXTENSIONS.forEach { ext ->
                         checkBox(".$ext")
                             .bindSelected(
-                                { ext in s.getEnabledExtensionSet() },
+                                { ext in ps.getEnabledExtensionSet() },
                                 { checked ->
                                     if (checked) enabledSet.add(ext) else enabledSet.remove(ext)
-                                    s.enabledExtensions = enabledSet.joinToString(",")
+                                    ps.enabledExtensions = enabledSet.joinToString(",")
                                 }
                             )
                     }
@@ -96,47 +111,33 @@ class I18nSettingsConfigurable : BoundSearchableConfigurable(
             }
 
             // ── 文件名前缀 ────────────────────────────────────────────────────
-            group("文件名前缀 (localeFilePrefix)") {
+            group("文件名前缀 (localeFilePrefix) (项目)") {
                 row {
                     textField()
-                        .bindText({ s.localeFilePrefix }, { s.localeFilePrefix = it })
+                        .bindText({ ps.localeFilePrefix }, { ps.localeFilePrefix = it })
                         .align(AlignX.FILL)
                 }.rowComment(
                     "locale 文件名前缀，逗号分隔，留空扫描全部文件。<br>" +
-                    "示例：<code>messages</code> 仅匹配 <code>messages_en.properties</code>、<code>messages_zh_CN.properties</code>；" +
+                    "示例：<code>messages</code> 仅匹配 <code>messages_en.properties</code>；" +
                     "多个前缀：<code>messages,validation</code>"
                 )
             }
 
-            // ── 键名与框架 ───────────────────────────────────────────────────
-            group("键名与框架") {
+            // ── 键名与框架 ────────────────────────────────────────────────────
+            group("键名与框架 (项目)") {
                 row("键名风格 (keystyle):") {
                     comboBox(listOf("nested", "flat"))
-                        .bindItem({ s.keystyle }, { s.keystyle = it ?: "nested" })
+                        .bindItem({ ps.keystyle }, { ps.keystyle = it ?: "nested" })
                         .comment("nested: {\"home\": {\"title\": \"...\"}}  |  flat: {\"home.title\": \"...\"}")
                 }
                 row("启用的框架 (enabledFrameworks):") {
                     textField()
-                        .bindText({ s.enabledFrameworks }, { s.enabledFrameworks = it })
+                        .bindText({ ps.enabledFrameworks }, { ps.enabledFrameworks = it })
                         .comment(
                             "<b>auto</b> = 自动检测；或填入逗号分隔列表：" +
                             "<code>i18next, vue-i18n, react-intl, ngx-translate, flutter</code>"
                         )
                         .align(AlignX.FILL)
-                }
-            }
-
-            // ── 显示选项 ─────────────────────────────────────────────────────
-            group("显示选项") {
-                row {
-                    checkBox("启用行尾 Inlay 翻译 (annotations)")
-                        .bindSelected({ s.annotations }, { s.annotations = it })
-                        .comment("在代码行尾以灰色文字实时显示 i18n key 对应的翻译内容")
-                }
-                row {
-                    checkBox("启用鼠标悬浮气泡 (hoverEnabled)")
-                        .bindSelected({ s.hoverEnabled }, { s.hoverEnabled = it })
-                        .comment("光标停留在 i18n key 上时，弹出气泡展示所有语言的翻译对照")
                 }
             }
         }
@@ -146,48 +147,41 @@ class I18nSettingsConfigurable : BoundSearchableConfigurable(
 
     override fun apply() {
         super.apply()
-        val s = I18nSettings.getInstance()
-        s.sourceLanguage  = comboValue(sourceLangCombo,  "en")
-        s.displayLanguage = comboValue(displayLangCombo, "en")
-        currentProject()?.let { LocaleFileService.getInstance(it).invalidateCache() }
+        val ps = I18nProjectSettings.getInstance(project)
+        ps.sourceLanguage  = comboValue(sourceLangCombo,  "en")
+        ps.displayLanguage = comboValue(displayLangCombo, "en")
+        LocaleFileService.getInstance(project).invalidateCache()
     }
 
     override fun reset() {
         super.reset()
-        val s = I18nSettings.getInstance()
-        sourceLangCombo.selectedItem  = s.sourceLanguage
-        displayLangCombo.selectedItem = s.displayLanguage
+        val ps = I18nProjectSettings.getInstance(project)
+        sourceLangCombo.selectedItem  = ps.sourceLanguage
+        displayLangCombo.selectedItem = ps.displayLanguage
         scanStatusLabel.text = ""
     }
 
     override fun isModified(): Boolean {
         if (super.isModified()) return true
-        val s = I18nSettings.getInstance()
-        return comboValue(sourceLangCombo, "en")  != s.sourceLanguage ||
-               comboValue(displayLangCombo, "en") != s.displayLanguage
+        val ps = I18nProjectSettings.getInstance(project)
+        return comboValue(sourceLangCombo, "en")  != ps.sourceLanguage ||
+               comboValue(displayLangCombo, "en") != ps.displayLanguage
     }
 
     // ── 扫描逻辑 ─────────────────────────────────────────────────────────────
 
     private fun runScan() {
+        val ps = I18nProjectSettings.getInstance(project)
         setScanStatus("⏳ 扫描中…", JBColor.GRAY)
 
-        val project = currentProject()
-        if (project == null) {
-            setScanStatus("⚠ 未找到打开的项目，请先打开一个项目", JBColor.RED)
-            return
-        }
-
-        // 在后台线程执行文件 IO，完成后切回 EDT 更新 UI
         ApplicationManager.getApplication().executeOnPooledThread {
             try {
-                val s = I18nSettings.getInstance()
                 val detected = LocaleFileService.getInstance(project).detectAvailableLanguages()
 
                 ApplicationManager.getApplication().invokeLater {
                     if (detected.isEmpty()) {
                         setScanStatus(
-                            "⚠ 未找到语言文件，请检查 localesPaths 配置（当前路径：${s.localesPaths}）",
+                            "⚠ 未找到语言文件，请检查 localesPaths 配置（当前路径：${ps.localesPaths}）",
                             JBColor(0xCC6600, 0xFFAA44)
                         )
                         return@invokeLater
@@ -219,16 +213,6 @@ class I18nSettingsConfigurable : BoundSearchableConfigurable(
         scanStatusLabel.foreground = color
     }
 
-    // ── 工具 ─────────────────────────────────────────────────────────────────
-
     private fun comboValue(combo: ComboBox<String>, default: String): String =
         (combo.selectedItem as? String)?.trim()?.ifEmpty { default } ?: default
-
-    /**
-     * 获取当前打开的真实项目（排除 IntelliJ 内部 default project）。
-     */
-    private fun currentProject() =
-        ProjectManager.getInstance().openProjects
-            .filterNot { it.isDefault }
-            .firstOrNull()
 }

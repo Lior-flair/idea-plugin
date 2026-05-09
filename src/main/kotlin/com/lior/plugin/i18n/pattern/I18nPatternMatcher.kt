@@ -1,6 +1,7 @@
 package com.lior.plugin.i18n.pattern
 
-import com.lior.plugin.i18n.settings.I18nSettings
+import com.intellij.openapi.project.Project
+import com.lior.plugin.i18n.settings.I18nProjectSettings
 
 /**
  * 单条框架模式：正则 + 捕获组索引。
@@ -81,8 +82,8 @@ object I18nPatternMatcher {
      * 从单行文本中提取所有 i18n key（去重，保留首次出现位置）。
      * 返回 Pair<匹配在行内的字符范围, key字符串>。
      */
-    fun findKeysInLine(line: String): List<Pair<IntRange, String>> {
-        val activePatterns = resolveActivePatterns()
+    fun findKeysInLine(line: String, project: Project? = null): List<Pair<IntRange, String>> {
+        val activePatterns = resolveActivePatterns(project)
         val result = mutableListOf<Pair<IntRange, String>>()
         val seen = mutableSetOf<String>()
 
@@ -108,9 +109,9 @@ object I18nPatternMatcher {
 
     // ── 内部 ─────────────────────────────────────────────────────────────────
 
-    private fun resolveActivePatterns(): List<I18nPattern> {
-        val settings = I18nSettings.getInstance()
-        val frameworkList = settings.getEnabledFrameworkList()
+    private fun resolveActivePatterns(project: Project? = null): List<I18nPattern> {
+        val frameworkList = project?.let { I18nProjectSettings.getInstance(it).getEnabledFrameworkList() }
+            ?: listOf("auto")
 
         return if (frameworkList.isEmpty() || frameworkList == listOf("auto")) {
             // auto: 返回所有模式，EditorLinePainter 中按实际匹配决定是否显示

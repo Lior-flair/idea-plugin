@@ -12,6 +12,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.TextRange
 import com.lior.plugin.i18n.pattern.I18nPatternMatcher
 import com.lior.plugin.i18n.service.LocaleFileService
+import com.lior.plugin.i18n.settings.I18nProjectSettings
 import com.lior.plugin.i18n.settings.I18nSettings
 import java.util.WeakHashMap
 
@@ -63,7 +64,7 @@ class I18nInlayHintManager : EditorFactoryListener {
             }
 
             val service = LocaleFileService.getInstance(project)
-            val language = settings.displayLanguage
+            val language = I18nProjectSettings.getInstance(project).displayLanguage
 
             if (!service.isCached(language)) return   // 尚未加载，loadInBackground 完成后会再次触发
 
@@ -80,7 +81,7 @@ class I18nInlayHintManager : EditorFactoryListener {
                                 if (lineStart >= lineEnd) continue
 
                                 val lineText = document.getText(TextRange(lineStart, lineEnd))
-                                for ((_, key) in I18nPatternMatcher.findKeysInLine(lineText)) {
+                                for ((_, key) in I18nPatternMatcher.findKeysInLine(lineText, project)) {
                                     val value = service.getCachedTranslation(language, key) ?: continue
                                     val display = if (value.length > MAX_LEN) "${value.take(MAX_LEN)}…" else value
                                     add(lineEnd to "  →  $display")

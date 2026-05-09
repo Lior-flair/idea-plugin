@@ -11,7 +11,7 @@ import com.intellij.ui.components.JBTabbedPane
 import com.intellij.ui.table.JBTable
 import com.intellij.ui.treeStructure.Tree
 import com.lior.plugin.i18n.service.LocaleFileService
-import com.lior.plugin.i18n.settings.I18nSettings
+import com.lior.plugin.i18n.settings.I18nProjectSettings
 import java.awt.BorderLayout
 import java.util.regex.Pattern
 import javax.swing.*
@@ -129,7 +129,7 @@ class I18nToolWindowPanel(private val project: Project) : JPanel(BorderLayout())
     ) {
         rootNode.removeAllChildren()
         val nodeMap = mutableMapOf<String, DefaultMutableTreeNode>()
-        val primaryLang = languages.firstOrNull() ?: I18nSettings.getInstance().displayLanguage
+        val primaryLang = languages.firstOrNull() ?: I18nProjectSettings.getInstance(project).displayLanguage
 
         for (key in keys) {
             val parts = key.split(".")

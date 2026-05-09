@@ -45,7 +45,7 @@ private class I18nMouseMotionListener(private val editor: Editor) : EditorMouseM
         if (lineStart >= lineEnd) { dismiss(); return }
 
         val lineText = document.getText(TextRange(lineStart, lineEnd))
-        val matches  = I18nPatternMatcher.findKeysInLine(lineText)
+        val matches  = I18nPatternMatcher.findKeysInLine(lineText, project)
         val col      = e.logicalPosition.column
         val match    = matches.firstOrNull { (range, _) -> col in range.first..range.last }
 

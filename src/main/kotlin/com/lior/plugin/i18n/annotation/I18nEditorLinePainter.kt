@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBColor
 import com.lior.plugin.i18n.pattern.I18nPatternMatcher
 import com.lior.plugin.i18n.service.LocaleFileService
+import com.lior.plugin.i18n.settings.I18nProjectSettings
 import com.lior.plugin.i18n.settings.I18nSettings
 import java.awt.Color
 import java.awt.Font
@@ -44,7 +45,7 @@ class I18nEditorLinePainter : EditorLinePainter() {
         if (matches.isEmpty()) return null
 
         val service  = LocaleFileService.getInstance(project)
-        val language = settings.displayLanguage
+        val language = I18nProjectSettings.getInstance(project).displayLanguage
 
         if (!service.isCached(language)) {
             service.loadInBackground(language)

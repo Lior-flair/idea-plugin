@@ -47,9 +47,11 @@
         <applicationService
             serviceImplementation="com.lior.plugin.i18n.settings.I18nSettings"/>
         <projectService
+            serviceImplementation="com.lior.plugin.i18n.settings.I18nProjectSettings"/>
+        <projectService
             serviceImplementation="com.lior.plugin.i18n.service.LocaleFileService"/>
-        <applicationConfigurable
-            parentId="editor"
+        <projectConfigurable
+            parentId="tools"
             instance="com.lior.plugin.i18n.settings.I18nSettingsConfigurable"
             id="com.lior.plugin.i18n.settings.I18nSettingsConfigurable"
             displayName="i18n"/>

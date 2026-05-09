@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.lior"
-version = "1.4.0"
+version = "1.5.0"
 
 repositories {
     mavenCentral()
@@ -28,6 +28,13 @@ intellijPlatform {
         }
 
         changeNotes = """
+            <h3>v1.5.0</h3>
+            <h4>i18n Helper — 设置迁移至【工具】并支持项目级配置</h4>
+            <ul>
+              <li>设置入口从【编辑器】迁移至 IDE 设置 → 【工具】→ i18n</li>
+              <li>项目专属配置（语言代码、路径、文件格式等）写入 <code>.idea/i18n.xml</code>，每个项目独立保存</li>
+              <li>全局配置（行尾 Inlay 开关、悬浮气泡开关）继续保存在 IDE 级别，所有项目共享</li>
+            </ul>
             <h3>v1.4.0</h3>
             <h4>i18n Helper — 设置项完善</h4>
             <ul>

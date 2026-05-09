@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
-import com.lior.plugin.i18n.settings.I18nSettings
+import com.lior.plugin.i18n.settings.I18nProjectSettings
 import java.io.StringReader
 import java.nio.file.FileSystems
 import java.nio.file.Files
@@ -43,13 +43,13 @@ class LocaleFileService(private val project: Project) {
     // ── 公共 API ─────────────────────────────────────────────────────────────
 
     fun getTranslation(key: String): String? {
-        val lang = I18nSettings.getInstance().displayLanguage
+        val lang = I18nProjectSettings.getInstance(project).displayLanguage
         return cache[lang]?.get(key)
     }
 
     fun isCached(language: String): Boolean = cache.containsKey(language)
 
-    fun loadInBackground(language: String = I18nSettings.getInstance().displayLanguage) {
+    fun loadInBackground(language: String = I18nProjectSettings.getInstance(project).displayLanguage) {
         if (isCached(language) || !loading.compareAndSet(false, true)) return
         ApplicationManager.getApplication().executeOnPooledThread {
             try {
@@ -76,7 +76,7 @@ class LocaleFileService(private val project: Project) {
 
     fun detectAvailableLanguages(): List<String> {
         val basePath = project.basePath?.let { Paths.get(it) } ?: return emptyList()
-        val settings = I18nSettings.getInstance()
+        val settings = I18nProjectSettings.getInstance(project)
         val prefixes = settings.getLocaleFilePrefixList()
         val languages = sortedSetOf<String>()
 
@@ -114,7 +114,7 @@ class LocaleFileService(private val project: Project) {
 
     fun findLocaleFilesForLanguage(language: String): List<VirtualFile> {
         val basePath = project.basePath?.let { Paths.get(it) } ?: return emptyList()
-        val settings = I18nSettings.getInstance()
+        val settings = I18nProjectSettings.getInstance(project)
         val prefixes = settings.getLocaleFilePrefixList()
         val result = mutableListOf<VirtualFile>()
         val normalizedLang = normalizeLanguageCode(language) ?: language
@@ -197,7 +197,7 @@ class LocaleFileService(private val project: Project) {
     }
 
     private fun isLocaleExtension(path: String): Boolean =
-        path.substringAfterLast('.').lowercase() in I18nSettings.getInstance().getEnabledExtensionSet()
+        path.substringAfterLast('.').lowercase() in I18nProjectSettings.getInstance(project).getEnabledExtensionSet()
 
     /**
      * 判断文件名 stem 是否符合前缀过滤条件。
