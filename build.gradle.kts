@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.lior"
-version = "1.3.0"
+version = "1.3.1"
 
 repositories {
     mavenCentral()
@@ -28,18 +28,24 @@ intellijPlatform {
         }
 
         changeNotes = """
+            <h3>v1.3.1</h3>
+            <h4>i18n Helper — 修复行尾 Inlay 中文乱码</h4>
+            <ul>
+              <li>行尾翻译渲染改用 IDE UI 标签字体（UIUtil.getLabelFont），解决代码等宽字体不含中日韩字形导致的方块乱码问题</li>
+              <li>同步修正 Inlay 宽度计算，避免汉字被截断</li>
+            </ul>
             <h3>v1.3.0</h3>
             <h4>i18n Helper — 行尾内联彻底修复</h4>
             <ul>
-              <li>将行尾翻译渲染方案从 EditorLinePainter 彻底切换为 InlayModel.addAfterLineEndElement()，
-                  解决 IntelliJ 2025.2 中 repaint() 无法可靠触发 EditorLinePainter 的问题</li>
-              <li>翻译加载完成后精准刷新所有打开的编辑器，无需手动按 Alt+Shift+R</li>
-              <li>文档内容变更时自动更新行尾 Inlay，保持与代码实时同步</li>
+              <li>将行尾翻译渲染方案从 EditorLinePainter 切换为 InlayModel.addAfterLineEndElement()，
+                  解决 IntelliJ 2025.2 中 repaint() 无法可靠触发绘制回调的问题</li>
+              <li>翻译加载完成后自动刷新所有打开的编辑器，无需手动按 Alt+Shift+R</li>
+              <li>文档内容变更时自动更新行尾 Inlay，与代码保持实时同步</li>
             </ul>
             <h3>v1.2.0</h3>
             <h4>i18n Helper — 鼠标悬浮翻译</h4>
             <ul>
-              <li>新增鼠标悬浮气泡：光标停留在 i18n key 上时，弹出气泡同时展示所有语言的翻译对照</li>
+              <li>新增鼠标悬浮气泡：光标停留在 i18n key 上时弹出气泡，同时展示所有语言的翻译对照</li>
             </ul>
             <h3>v1.1.0</h3>
             <h4>i18n Helper — 新增 Tool Window 面板</h4>
