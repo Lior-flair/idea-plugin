@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>com.lior.plugin</id>
     <name>MineSpace Developer Tools</name>
-    <vendor url="https://github.com/lior">lior</vendor>
+    <vendor url="https://github.com/Lior-flair">Lior-flair</vendor>
 
     <description><![CDATA[
         <b>MineSpace Developer Tools</b> — 面向 WebStorm / IntelliJ IDEA 的开发效率插件。<br><br>
