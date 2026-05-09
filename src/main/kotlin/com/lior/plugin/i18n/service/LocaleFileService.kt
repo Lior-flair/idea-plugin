@@ -3,7 +3,6 @@ package com.lior.plugin.i18n.service
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -427,10 +426,10 @@ class LocaleFileService(private val project: Project) {
     // ── 工具 ─────────────────────────────────────────────────────────────────
 
     private fun repaintAllEditors() {
+        // 翻译加载完成后，通过 InlayHintManager 直接将 Inlay 写入各编辑器，
+        // 不依赖 EditorLinePainter 的绘制回调（后者在 2025.2 中无法被 repaint() 可靠触发）
         ApplicationManager.getApplication().invokeLater {
-            EditorFactory.getInstance().allEditors
-                .filter { it.project == project }
-                .forEach { it.component.repaint() }
+            com.lior.plugin.i18n.annotation.I18nInlayHintManager.refreshAllEditors(project)
         }
     }
 

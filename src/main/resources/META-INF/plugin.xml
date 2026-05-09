@@ -54,9 +54,9 @@
             id="com.lior.plugin.i18n.settings.I18nSettingsConfigurable"
             displayName="i18n"/>
 
-        <!-- 行尾翻译注释（适用于所有文件类型）-->
-        <editorLinePainter
-            implementation="com.lior.plugin.i18n.annotation.I18nEditorLinePainter"/>
+        <!-- 行尾翻译 Inlay（InlayModel 直接写入，替代 EditorLinePainter 的绘制回调）-->
+        <editorFactoryListener
+            implementation="com.lior.plugin.i18n.annotation.I18nInlayHintManager"/>
 
         <!-- 鼠标悬浮气泡：光标停在 i18n key 上时展示所有语言的翻译 -->
         <editorFactoryListener
