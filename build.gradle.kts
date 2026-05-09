@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.lior"
-version = "1.2.0"
+version = "1.3.0"
 
 repositories {
     mavenCentral()
@@ -28,11 +28,18 @@ intellijPlatform {
         }
 
         changeNotes = """
-            <h3>v1.2.0</h3>
-            <h4>i18n Helper — 行尾内联修复 &amp; 鼠标悬浮翻译</h4>
+            <h3>v1.3.0</h3>
+            <h4>i18n Helper — 行尾内联彻底修复</h4>
             <ul>
-              <li>修复 IntelliJ 2024.1+ 中行尾翻译始终不显示的问题（适配新版 EditorLinePainter 方法签名 &amp; TextAttributes API）</li>
-              <li>新增鼠标悬浮气泡：光标停留在 i18n key 上时，弹出气泡展示所有语言的翻译内容</li>
+              <li>将行尾翻译渲染方案从 EditorLinePainter 彻底切换为 InlayModel.addAfterLineEndElement()，
+                  解决 IntelliJ 2025.2 中 repaint() 无法可靠触发 EditorLinePainter 的问题</li>
+              <li>翻译加载完成后精准刷新所有打开的编辑器，无需手动按 Alt+Shift+R</li>
+              <li>文档内容变更时自动更新行尾 Inlay，保持与代码实时同步</li>
+            </ul>
+            <h3>v1.2.0</h3>
+            <h4>i18n Helper — 鼠标悬浮翻译</h4>
+            <ul>
+              <li>新增鼠标悬浮气泡：光标停留在 i18n key 上时，弹出气泡同时展示所有语言的翻译对照</li>
             </ul>
             <h3>v1.1.0</h3>
             <h4>i18n Helper — 新增 Tool Window 面板</h4>
