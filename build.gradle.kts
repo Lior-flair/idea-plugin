@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.lior"
-version = "1.3.1"
+version = "1.4.0"
 
 repositories {
     mavenCentral()
@@ -28,6 +28,12 @@ intellijPlatform {
         }
 
         changeNotes = """
+            <h3>v1.4.0</h3>
+            <h4>i18n Helper — 设置项完善</h4>
+            <ul>
+              <li>新增「文件格式」勾选组：可单独启用或禁用 .json / .yaml / .yml / .properties / .js / .ts 各后缀的扫描</li>
+              <li>新增「启用鼠标悬浮气泡」独立开关，与行尾 Inlay 开关分离，可按需关闭悬浮提示</li>
+            </ul>
             <h3>v1.3.1</h3>
             <h4>i18n Helper — 修复行尾 Inlay 中文乱码</h4>
             <ul>

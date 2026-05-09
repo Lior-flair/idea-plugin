@@ -33,8 +33,7 @@ private class I18nMouseMotionListener(private val editor: Editor) : EditorMouseM
 
     override fun mouseMoved(e: EditorMouseEvent) {
         val settings = I18nSettings.getInstance()
-        // 只有「启用内联注释」时才响应悬浮（复用同一开关，无需单独设置项）
-        if (!settings.annotations) { dismiss(); return }
+        if (!settings.hoverEnabled) { dismiss(); return }
 
         val project  = editor.project ?: return
         val document = editor.document

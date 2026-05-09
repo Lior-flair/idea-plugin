@@ -78,6 +78,23 @@ class I18nSettingsConfigurable : BoundSearchableConfigurable(
                 )
             }
 
+            // ── 文件格式 ─────────────────────────────────────────────────────
+            group("文件格式 (enabledExtensions)") {
+                val enabledSet = s.getEnabledExtensionSet().toMutableSet()
+                row {
+                    I18nSettings.ALL_EXTENSIONS.forEach { ext ->
+                        checkBox(".$ext")
+                            .bindSelected(
+                                { ext in s.getEnabledExtensionSet() },
+                                { checked ->
+                                    if (checked) enabledSet.add(ext) else enabledSet.remove(ext)
+                                    s.enabledExtensions = enabledSet.joinToString(",")
+                                }
+                            )
+                    }
+                }.rowComment("勾选允许扫描的 locale 文件后缀，取消勾选后对应格式将被忽略")
+            }
+
             // ── 文件名前缀 ────────────────────────────────────────────────────
             group("文件名前缀 (localeFilePrefix)") {
                 row {
@@ -112,9 +129,14 @@ class I18nSettingsConfigurable : BoundSearchableConfigurable(
             // ── 显示选项 ─────────────────────────────────────────────────────
             group("显示选项") {
                 row {
-                    checkBox("启用内联翻译注释 (annotations)")
+                    checkBox("启用行尾 Inlay 翻译 (annotations)")
                         .bindSelected({ s.annotations }, { s.annotations = it })
-                        .comment("在代码行尾以灰色文字显示对应翻译内容")
+                        .comment("在代码行尾以灰色文字实时显示 i18n key 对应的翻译内容")
+                }
+                row {
+                    checkBox("启用鼠标悬浮气泡 (hoverEnabled)")
+                        .bindSelected({ s.hoverEnabled }, { s.hoverEnabled = it })
+                        .comment("光标停留在 i18n key 上时，弹出气泡展示所有语言的翻译对照")
                 }
             }
         }

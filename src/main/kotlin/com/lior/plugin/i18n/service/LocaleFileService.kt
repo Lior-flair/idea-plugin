@@ -197,7 +197,7 @@ class LocaleFileService(private val project: Project) {
     }
 
     private fun isLocaleExtension(path: String): Boolean =
-        path.substringAfterLast('.').lowercase() in LOCALE_EXTENSIONS
+        path.substringAfterLast('.').lowercase() in I18nSettings.getInstance().getEnabledExtensionSet()
 
     /**
      * 判断文件名 stem 是否符合前缀过滤条件。
@@ -434,8 +434,6 @@ class LocaleFileService(private val project: Project) {
     }
 
     companion object {
-        private val LOCALE_EXTENSIONS = setOf("json", "yaml", "yml", "properties", "js", "ts")
-
         fun getInstance(project: Project): LocaleFileService =
             project.getService(LocaleFileService::class.java)
     }

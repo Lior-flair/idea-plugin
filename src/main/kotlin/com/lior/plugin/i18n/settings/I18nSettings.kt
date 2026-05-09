@@ -31,8 +31,17 @@ class I18nSettings : PersistentStateComponent<I18nSettings> {
      */
     var keystyle: String = "nested"
 
-    /** 是否启用内联翻译注释（行尾显示翻译内容） */
+    /** 是否启用行尾 Inlay 翻译（行尾显示翻译内容） */
     var annotations: Boolean = true
+
+    /** 是否启用鼠标悬浮气泡（停留在 i18n key 上时弹出多语言对照） */
+    var hoverEnabled: Boolean = true
+
+    /**
+     * 启用扫描的 locale 文件后缀，逗号分隔。
+     * 留空或与 ALL_EXTENSIONS 相同时表示全部启用。
+     */
+    var enabledExtensions: String = ALL_EXTENSIONS.joinToString(",")
 
     /** 是否从项目 locale 目录中自动读取可用语言列表 */
     var autoDetectLanguages: Boolean = false
@@ -65,7 +74,15 @@ class I18nSettings : PersistentStateComponent<I18nSettings> {
     fun getLocaleFilePrefixList(): List<String> =
         localeFilePrefix.split(",").map { it.trim() }.filter { it.isNotEmpty() }
 
+    fun getEnabledExtensionSet(): Set<String> {
+        val list = enabledExtensions.split(",").map { it.trim().lowercase() }.filter { it.isNotEmpty() }
+        return if (list.isEmpty()) ALL_EXTENSIONS.toSet() else list.toSet()
+    }
+
     companion object {
+        /** 插件支持的全部 locale 文件后缀（有序，用于 UI 展示）*/
+        val ALL_EXTENSIONS = listOf("json", "yaml", "yml", "properties", "js", "ts")
+
         fun getInstance(): I18nSettings =
             ApplicationManager.getApplication().getService(I18nSettings::class.java)
     }
