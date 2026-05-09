@@ -38,7 +38,7 @@
         <applicationService
             serviceImplementation="com.lior.plugin.consoleHelper.settings.ConsoleHelperSettings"/>
         <applicationConfigurable
-            parentId="editor"
+            parentId="tools"
             instance="com.lior.plugin.consoleHelper.settings.ConsoleHelperSettingsConfigurable"
             id="com.lior.plugin.consoleHelper.settings.ConsoleHelperSettingsConfigurable"
             displayName="Console Helper"/>
