@@ -4,8 +4,8 @@ plugins {
     id("org.jetbrains.intellij.platform") version "2.10.2"
 }
 
-group = "com.lior"
-version = "1.5.1"
+group   = "com.lior"
+version = "1.6.0"
 
 repositories {
     mavenCentral()
@@ -18,6 +18,7 @@ dependencies {
     intellijPlatform {
         intellijIdea("2025.2.4")
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
+        bundledPlugin("com.intellij.java")
     }
 }
 
@@ -28,10 +29,18 @@ intellijPlatform {
         }
 
         changeNotes = """
+            <h3>v1.6.0</h3>
+            <h4>i18n Helper — Tool Window 原生 Header + 启动自动加载修复</h4>
+            <ul>
+              <li>Tool Window 改为原生双 Content 方案：Table View / Tree View 标签直接出现在 IDE 标题栏，与平台 UI 完全融合</li>
+              <li>右侧 Title Actions：搜索框、刷新按钮、设置按钮，无需展开额外面板</li>
+              <li>修复：新打开文件时行尾 Inlay 与悬浮气泡须手动刷新才显示的问题——editorCreated 时若缓存未就绪，自动触发后台加载，完成后刷新所有编辑器</li>
+              <li>悬浮气泡位置上移，避免与当前行代码重叠</li>
+            </ul>
             <h3>v1.5.1</h3>
             <h4>设置入口迁移至【工具】</h4>
             <ul>
-              <li>Console Helper设置入口均从【编辑器】迁移至 IDE 设置 → 【工具】</li>
+              <li>Console Helper 设置入口均从【编辑器】迁移至 IDE 设置 → 【工具】</li>
             </ul>
             <h3>v1.5.0</h3>
             <h4>设置入口迁移至【工具】+ i18n 项目级配置</h4>
@@ -97,6 +106,8 @@ intellijPlatform {
             </ul>
         """.trimIndent()
     }
+
+    buildSearchableOptions = false
 }
 
 tasks {

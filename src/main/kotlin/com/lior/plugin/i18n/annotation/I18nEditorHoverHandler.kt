@@ -92,7 +92,9 @@ private class I18nMouseMotionListener(private val editor: Editor) : EditorMouseM
             .setFadeoutTime(0)
             .createBalloon()
             .also { balloon ->
-                balloon.show(RelativePoint(e.mouseEvent), Balloon.Position.above)
+                val mouseEvent = e.mouseEvent
+                val point = java.awt.Point(mouseEvent.x, mouseEvent.y - 12)
+                balloon.show(RelativePoint(mouseEvent.component, point), Balloon.Position.above)
             }
     }
 
