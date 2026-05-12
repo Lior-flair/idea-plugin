@@ -66,7 +66,10 @@ class I18nInlayHintManager : EditorFactoryListener {
             val service = LocaleFileService.getInstance(project)
             val language = I18nProjectSettings.getInstance(project).displayLanguage
 
-            if (!service.isCached(language)) return   // 尚未加载，loadInBackground 完成后会再次触发
+            if (!service.isCached(language)) {
+                service.loadInBackground(language)     // 触发后台加载，完成后会调用 refreshAllEditors
+                return
+            }
 
             // 在后台线程持有 ReadAction 读取文档，避免阻塞 EDT
             ApplicationManager.getApplication().executeOnPooledThread {
